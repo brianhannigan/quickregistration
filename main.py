@@ -162,12 +162,7 @@ class MainWindow(QWidget):
         right_box = QGroupBox("Drop Pad")
         right_layout = QVBoxLayout(right_box)
         right_layout.addWidget(self.drop_pad, 1)
-
-        warn_box = QGroupBox("Excluded (not draggable)")
-        warn_layout = QVBoxLayout(warn_box)
-        warn_layout.addWidget(QLabel("Payment-like keys are excluded (card number/CVV/expiry)."))
-        warn_layout.addWidget(self.forbidden_list, 1)
-
+      
         mid = QHBoxLayout()
         mid.addWidget(left_box, 2)
         mid.addWidget(right_box, 3)
@@ -181,19 +176,19 @@ class MainWindow(QWidget):
         # Preload sample (safe keys will show, forbidden keys will be excluded)
         self.populate_from_dict({
             "profile_name": "Billing",
-            "billing_name": "Megan Young",
+            "billing_name": "",
             "email": "",
             "phone": "9999999999",
-            "address1": "10 Bass Dr",
+            "address1": "",
             "address2": "",
-            "city": "Succasunna",
-            "state": "NJ",
-            "zip": "07876",
+            "city": "",
+            "state": "",
+            "zip": "",
             "country": "US",
-            "name": "Megan Young",
-            "card_number": "5424181632260720",
-            "card_expiration": "11/29",
-            "card_cvv": "976"
+            "name": "",
+            "card_number": "",
+            "card_expiration": "",
+            "card_cvv": ""
         })
 
     def clear_all(self):
