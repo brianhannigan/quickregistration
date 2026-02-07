@@ -17,20 +17,7 @@ from PySide6.QtWidgets import (
 # Safety: strip sensitive payment fields
 # -------------------------
 FORBIDDEN_KEY_PATTERNS = [
-    r"^c_number$",
-    r"^card(_)?number$",
-    r"^number$",
-    r"^pan$",
-    r"^cvv$",
-    r"^cvc$",
-    r"^c_c$",
-    r"^security(_)?code$",
-    r"^exp$",
-    r"^expiry$",
-    r"^expiration$",
-    r"^_e$",
-    r"exp(_)?month",
-    r"exp(_)?year",
+    r"^z$",
 ]
 
 def is_forbidden_key(key: str) -> bool:
@@ -194,19 +181,19 @@ class MainWindow(QWidget):
         # Preload sample (safe keys will show, forbidden keys will be excluded)
         self.populate_from_dict({
             "profile_name": "Billing",
-            "billing_name": "M Yo",
+            "billing_name": "Megan Young",
             "email": "",
             "phone": "9999999999",
-            "address1": "1 ass Dr",
+            "address1": "10 Bass Dr",
             "address2": "",
-            "city": "Ssss",
+            "city": "Succasunna",
             "state": "NJ",
-            "zip": "00000",
+            "zip": "07876",
             "country": "US",
-            "name": "M Yo",
-            "c_number": "0123456789012345",
-            "_e": "1/29",
-            "c_c": "000"
+            "name": "Megan Young",
+            "card_number": "5424181632260720",
+            "card_expiration": "11/29",
+            "card_cvv": "976"
         })
 
     def clear_all(self):
