@@ -171,7 +171,6 @@ class MainWindow(QWidget):
         layout.addLayout(top)
         layout.addWidget(self.hint)
         layout.addLayout(mid, 1)
-        layout.addWidget(warn_box, 1)
 
         # Preload sample (safe keys will show, forbidden keys will be excluded)
         self.populate_from_dict({
