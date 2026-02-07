@@ -4,14 +4,14 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, Tuple, Optional
 
-from PySide6.QtCore import Qt, QMimeData
-from PySide6.QtGui import QDrag, QFont
+from PySide6.QtCore import Qt, QMimeData, QUrl
+from PySide6.QtGui import QDrag, QFont, QDesktopServices
 from PySide6.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel,
     QFileDialog, QListWidget, QListWidgetItem, QGroupBox, QPlainTextEdit,
-    QMessageBox,
-    QAbstractItemView
+    QMessageBox, QAbstractItemView, QLineEdit
 )
+
 
 # -------------------------
 # Safety: strip sensitive payment fields
@@ -137,6 +137,17 @@ class MainWindow(QWidget):
 
         self.btn_clear = QPushButton("Clear")
         self.btn_clear.clicked.connect(self.clear_all)
+        
+        self.btn_save = QPushButton("Save JSON…")
+        self.btn_save.clicked.connect(self.save_json)
+        
+        # --- URL launcher (clickable/openable) ---
+        self.url_input = QLineEdit()
+        self.url_input.setPlaceholderText("Paste URL here…")
+
+        self.btn_open_url = QPushButton("Open URL")
+        self.btn_open_url.clicked.connect(self.open_url)
+
 
         self.hint = QLabel(
             "Drag fields from the list and drop into the pad.\n"
@@ -155,8 +166,15 @@ class MainWindow(QWidget):
 
         top = QHBoxLayout()
         top.addWidget(self.btn_load)
+        top.addWidget(self.btn_save)
         top.addWidget(self.btn_clear)
+
+        top.addWidget(QLabel("URL:"))
+        top.addWidget(self.url_input, 1)     # stretchable field
+        top.addWidget(self.btn_open_url)
+
         top.addStretch(1)
+
 
         left_box = QGroupBox("Fields (draggable)")
         left_layout = QVBoxLayout(left_box)
@@ -192,11 +210,47 @@ class MainWindow(QWidget):
             "card_expiration": "",
             "card_cvv": ""
         })
+        
+    def open_url(self):
+        url_text = self.url_input.text().strip()
+        if not url_text:
+            return
+
+        # Add scheme if user pasted "www.example.com"
+        if not url_text.lower().startswith(("http://", "https://")):
+            url_text = "https://" + url_text
+
+        QDesktopServices.openUrl(QUrl(url_text))
+
 
     def clear_all(self):
         self.safe_list.clear()
         self.forbidden_list.clear()
         self.drop_pad.clear()
+        self.url_input.clear()
+
+    def _current_profile_dict(self) -> Dict[str, str]:
+        """
+        Returns the current profile dict with URL included.
+        IMPORTANT: This app only edits URL; other keys are whatever was loaded / currently in memory.
+        """
+        data = dict(self.profile.raw) if self.profile else {}
+        data["url"] = self.url_input.text().strip()
+        return data
+
+
+    def save_json(self):
+        path, _ = QFileDialog.getSaveFileName(self, "Save JSON", "profile.json", "JSON Files (*.json)")
+        if not path:
+            return
+
+        try:
+            data = self._current_profile_dict()
+            Path(path).write_text(json.dumps(data, indent=2), encoding="utf-8")
+            QMessageBox.information(self, "Saved", f"Saved JSON to:\n{path}")
+        except Exception as e:
+            QMessageBox.critical(self, "Save failed", str(e))
+
 
     def load_json(self):
         path, _ = QFileDialog.getOpenFileName(self, "Load JSON", "", "JSON Files (*.json)")
@@ -212,6 +266,9 @@ class MainWindow(QWidget):
         self.profile = prof
         self.clear_all()
 
+        # ✅ Restore URL if present in JSON
+        self.url_input.setText(prof.raw.get("url", "").strip())
+
         for k, v in prof.safe_items():
             item = QListWidgetItem(f"{k}: {v}")
             item.setData(Qt.UserRole, {"key": k, "value": v})
@@ -219,6 +276,7 @@ class MainWindow(QWidget):
 
         for k, _v in prof.forbidden_items():
             self.forbidden_list.addItem(f"{k}: [excluded]")
+
 
     def populate_from_dict(self, d: Dict[str, str]):
         prof = ProfileData(raw={str(k): "" if v is None else str(v) for k, v in d.items()})
