@@ -159,13 +159,13 @@ class MainWindow(QWidget):
         left_layout = QVBoxLayout(left_box)
         left_layout.addWidget(self.safe_list, 1)
 
-        right_box = QGroupBox("Drop Pad")
-        right_layout = QVBoxLayout(right_box)
-        right_layout.addWidget(self.drop_pad, 1)
+        # right_box = QGroupBox("Drop Pad")
+        # right_layout = QVBoxLayout(right_box)
+        # right_layout.addWidget(self.drop_pad, 1)
       
         mid = QHBoxLayout()
         mid.addWidget(left_box, 2)
-        mid.addWidget(right_box, 3)
+        #mid.addWidget(right_box, 3)
 
         layout = QVBoxLayout(self)
         layout.addLayout(top)
